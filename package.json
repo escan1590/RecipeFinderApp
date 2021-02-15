@@ -1,0 +1,26 @@
+{
+  "name": "forkify",
+  "version": "1.0.0",
+  "description": "Recipe Application",
+  "main": "index.js",
+  "scripts": {
+    "start": "parcel index.html",
+    "build": "parcel build index.html"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/escan1590/RecipeFinderApp.git"
+  },
+  "keywords": [
+    "Recipe"
+  ],
+  "author": "Paul Daniel Tchatchouang Ouokam",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/escan1590/RecipeFinderApp/issues"
+  },
+  "homepage": "https://github.com/escan1590/RecipeFinderApp#readme",
+  "devDependencies": {
+    "parcel": "^2.0.0-nightly.596"
+  }
+}

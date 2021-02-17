@@ -1,8 +1,8 @@
 {
-  "name": "forkify",
+  "name": "starter",
   "version": "1.0.0",
-  "description": "Recipe Application",
-  "main": "index.js",
+  "description": "a simple app to find recipe online",
+  "main": "index.html",
   "scripts": {
     "start": "parcel index.html",
     "build": "parcel build index.html"
@@ -12,28 +12,20 @@
     "url": "git+https://github.com/escan1590/RecipeFinderApp.git"
   },
   "keywords": [
-    "Recipe"
+    "recipe"
   ],
-  "author": "Paul Daniel Tchatchouang Ouokam",
+  "author": "Tchatchouang Ouokam Daniel Paul",
   "license": "ISC",
   "bugs": {
     "url": "https://github.com/escan1590/RecipeFinderApp/issues"
   },
   "homepage": "https://github.com/escan1590/RecipeFinderApp#readme",
   "devDependencies": {
-    "@parcel/optimizer-cssnano": "^2.0.0-nightly.598",
-    "@parcel/optimizer-htmlnano": "^2.0.0-nightly.598",
-    "@parcel/packager-css": "^2.0.0-nightly.598",
-    "@parcel/packager-html": "^2.0.0-nightly.598",
-    "@parcel/transformer-css": "^2.0.0-nightly.598",
-    "@parcel/transformer-html": "^2.0.0-nightly.598",
-    "@parcel/transformer-postcss": "^2.0.0-nightly.598",
-    "@parcel/transformer-posthtml": "^2.0.0-nightly.598",
-    "@parcel/transformer-sass": "^2.0.0-nightly.598",
-    "parcel": "^2.0.0-nightly.596",
-    "postcss": "^8.2.6"
+    "parcel": "^2.0.0-beta.1",
+    "sass": "^1.32.7"
   },
   "dependencies": {
-    "sass": "^1.32.7"
+    "core-js": "^3.8.3",
+    "regenerator-runtime": "^0.13.7"
   }
 }

@@ -1,14 +1,16 @@
 import icons from 'url:../../img/icons.svg';
 import View from './View';
+
 class resultView extends View {
   _parentElement = document.querySelector('.results');
   _errorMessage = 'No recipe found please try another one';
   _message = '';
+
   _generateMarkup() {
     return this._data.map(this._generateMarkupPreview).join('');
   }
 
-  _generateMarkupPreview(result) {
+  _generateMarkupPreview(result, idx, array) {
     return `
     <li class="preview">
           <a class="preview__link preview__link--active" href="#${result.id}">

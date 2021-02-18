@@ -1,10 +1,13 @@
-import { API_URL } from './config';
+import { API_URL, RESULT_PER_PAGE } from './config';
 import { getJSON } from './helpers';
 export const state = {
   recipe: {},
   search: {
     query: '',
     results: [],
+    page: 1,
+    resultsPerpage: RESULT_PER_PAGE,
+    //maxPage: 1,
   },
 };
 
@@ -23,8 +26,6 @@ export const loadRecipe = async function (id) {
       cookingTime: recipe.cooking_time,
       ingredients: recipe.ingredients,
     };
-
-    console.log(state.recipe);
   } catch (err) {
     throw err;
   }
@@ -46,9 +47,19 @@ export const loadSearchResults = async function (query) {
         ingredients: rec.ingredients,
       };
     });
+    //maxPage = Math.ceil(state.search.results.length / RESULT_PER_PAGE);
   } catch (error) {
     console.error(error);
     throw error;
   }
 };
-loadSearchResults('pizza');
+export const getSearchResultPage = function (page = state.search.page) {
+  state.search.page = page;
+  const start = (page - 1) * state.search.resultsPerpage;
+  const end = page * state.search.resultsPerpage;
+  return state.search.results.slice(start, end);
+};
+
+export const resetPage = function () {
+  state.search.page = 1;
+};

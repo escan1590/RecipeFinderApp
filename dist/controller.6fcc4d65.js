@@ -471,6 +471,10 @@ var model = _interopRequireWildcard(require("./model"));
 
 var _recipeView = _interopRequireDefault(require("./views/recipeView"));
 
+var _searchView = _interopRequireDefault(require("./views/searchView"));
+
+var _resultView = _interopRequireDefault(require("./views/resultView"));
+
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 function _getRequireWildcardCache() { if (typeof WeakMap !== "function") return null; var cache = new WeakMap(); _getRequireWildcardCache = function () { return cache; }; return cache; }
@@ -479,6 +483,15 @@ function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj;
 
 // https://forkify-api.herokuapp.com/v2
 ///////////////////////////////////////
+// if (module.hot) {
+//   module.hot.accept();
+// }
+const init = function () {
+  _recipeView.default.addHandlerRender(controlRecipe);
+
+  _searchView.default.addHandlerSearch(controlSearchResults);
+};
+
 const controlRecipe = async function () {
   try {
     const id = window.location.hash.slice(1);
@@ -491,14 +504,29 @@ const controlRecipe = async function () {
 
     _recipeView.default.render(model.state.recipe);
   } catch (err) {
-    console.error(err);
-    alert(err);
+    _recipeView.default.renderError();
   }
 };
 
-controlRecipe();
-['hashchange', 'load'].forEach(ev => window.addEventListener(ev, controlRecipe));
-},{"core-js/modules/es.typed-array.float32-array.js":"d5ed5e3a2e200dcf66c948e6350ae29c","core-js/modules/es.typed-array.float64-array.js":"49914eeba57759547672886c5961b9e4","core-js/modules/es.typed-array.int8-array.js":"1fc9d0d9e9c4ca72873ee75cc9532911","core-js/modules/es.typed-array.int16-array.js":"6ba53210946e69387b5af65ca70f5602","core-js/modules/es.typed-array.int32-array.js":"52f07ad61480c3da8b1b371346f2b755","core-js/modules/es.typed-array.uint8-array.js":"6042ea91f038c74624be740ff17090b9","core-js/modules/es.typed-array.uint8-clamped-array.js":"47e53ff27a819e98075783d2516842bf","core-js/modules/es.typed-array.uint16-array.js":"20f511ab1a5fbdd3a99ff1f471adbc30","core-js/modules/es.typed-array.uint32-array.js":"8212db3659c5fe8bebc2163b12c9f547","core-js/modules/es.typed-array.from.js":"183d72778e0f99cedb12a04e35ea2d50","core-js/modules/es.typed-array.of.js":"2ee3ec99d0b3dea4fec9002159200789","core-js/modules/web.immediate.js":"140df4f8e97a45c53c66fead1f5a9e92","core-js/modules/web.url.js":"a66c25e402880ea6b966ee8ece30b6df","core-js/modules/web.url.to-json.js":"6357c5a053a36e38c0e24243e550dd86","core-js/modules/web.url-search-params.js":"2494aebefd4ca447de0ef4cfdd47509e","./model":"aabf248f40f7693ef84a0cb99f385d1f","./views/recipeView":"bcae1aced0301b01ccacb3e6f7dfede8"}],"d5ed5e3a2e200dcf66c948e6350ae29c":[function(require,module,exports) {
+const controlSearchResults = async function () {
+  try {
+    _resultView.default.renderSpinner(); //1) Get search query
+
+
+    const query = _searchView.default.getQuery();
+
+    if (!query) return; //2) Load searrch results
+
+    await model.loadSearchResults(query); //3) renderResults
+
+    _resultView.default.render(model.state.search.results);
+  } catch (err) {
+    console.error(err);
+  }
+};
+
+init();
+},{"core-js/modules/es.typed-array.float32-array.js":"d5ed5e3a2e200dcf66c948e6350ae29c","core-js/modules/es.typed-array.float64-array.js":"49914eeba57759547672886c5961b9e4","core-js/modules/es.typed-array.int8-array.js":"1fc9d0d9e9c4ca72873ee75cc9532911","core-js/modules/es.typed-array.int16-array.js":"6ba53210946e69387b5af65ca70f5602","core-js/modules/es.typed-array.int32-array.js":"52f07ad61480c3da8b1b371346f2b755","core-js/modules/es.typed-array.uint8-array.js":"6042ea91f038c74624be740ff17090b9","core-js/modules/es.typed-array.uint8-clamped-array.js":"47e53ff27a819e98075783d2516842bf","core-js/modules/es.typed-array.uint16-array.js":"20f511ab1a5fbdd3a99ff1f471adbc30","core-js/modules/es.typed-array.uint32-array.js":"8212db3659c5fe8bebc2163b12c9f547","core-js/modules/es.typed-array.from.js":"183d72778e0f99cedb12a04e35ea2d50","core-js/modules/es.typed-array.of.js":"2ee3ec99d0b3dea4fec9002159200789","core-js/modules/web.immediate.js":"140df4f8e97a45c53c66fead1f5a9e92","core-js/modules/web.url.js":"a66c25e402880ea6b966ee8ece30b6df","core-js/modules/web.url.to-json.js":"6357c5a053a36e38c0e24243e550dd86","core-js/modules/web.url-search-params.js":"2494aebefd4ca447de0ef4cfdd47509e","./model":"aabf248f40f7693ef84a0cb99f385d1f","./views/recipeView":"bcae1aced0301b01ccacb3e6f7dfede8","./views/searchView":"c5d792f7cac03ef65de30cc0fbb2cae7","./views/resultView":"1b9321e9d451d613e1ac88fb405e4534"}],"d5ed5e3a2e200dcf66c948e6350ae29c":[function(require,module,exports) {
 var createTypedArrayConstructor = require('../internals/typed-array-constructor');
 
 // `Float32Array` constructor
@@ -5037,14 +5065,18 @@ $({ target: 'URL', proto: true, enumerable: true }, {
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports.loadRecipe = exports.state = void 0;
+exports.loadSearchResults = exports.loadRecipe = exports.state = void 0;
 
 var _config = require("./config");
 
 var _helpers = require("./helpers");
 
 const state = {
-  recipe: {}
+  recipe: {},
+  search: {
+    query: '',
+    results: []
+  }
 };
 exports.state = state;
 
@@ -5066,11 +5098,36 @@ const loadRecipe = async function (id) {
     };
     console.log(state.recipe);
   } catch (err) {
-    alert(`${err}😐`);
+    throw err;
   }
 };
 
 exports.loadRecipe = loadRecipe;
+
+const loadSearchResults = async function (query) {
+  try {
+    state.search.query = query;
+    const data = await (0, _helpers.getJSON)(`${_config.API_URL}?search=${query}`);
+    state.search.results = data.data.recipes.map(rec => {
+      return {
+        id: rec.id,
+        title: rec.title,
+        publisher: rec.publisher,
+        sourceUrl: rec.source_url,
+        image: rec.image_url,
+        servings: rec.servings,
+        cookingTime: rec.cooking_time,
+        ingredients: rec.ingredients
+      };
+    });
+  } catch (error) {
+    console.error(error);
+    throw error;
+  }
+};
+
+exports.loadSearchResults = loadSearchResults;
+loadSearchResults('pizza');
 },{"./config":"09212d541c5c40ff2bd93475a904f8de","./helpers":"0e8dcd8a4e1c61cf18f78e1c2563655d"}],"09212d541c5c40ff2bd93475a904f8de":[function(require,module,exports) {
 "use strict";
 
@@ -5079,7 +5136,7 @@ Object.defineProperty(exports, "__esModule", {
 });
 exports.TIMEOUT_SEC = exports.API_URL = void 0;
 //Only variable responsible for defining important data in the application.
-const API_URL = `https://forkify-api.herokuapp.com/api/v2/recipes/`;
+const API_URL = `https://forkify-api.herokuapp.com/api/v2/recipes`;
 exports.API_URL = API_URL;
 const TIMEOUT_SEC = 10;
 exports.TIMEOUT_SEC = TIMEOUT_SEC;
@@ -5127,75 +5184,32 @@ var _icons = _interopRequireDefault(require("url:../../img/icons.svg"));
 
 var _fractional = require("fractional");
 
+var _View = _interopRequireDefault(require("./View"));
+
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
-function _classPrivateFieldGet(receiver, privateMap) { var descriptor = privateMap.get(receiver); if (!descriptor) { throw new TypeError("attempted to get private field on non-instance"); } if (descriptor.get) { return descriptor.get.call(receiver); } return descriptor.value; }
+function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
 
-function _classPrivateMethodGet(receiver, privateSet, fn) { if (!privateSet.has(receiver)) { throw new TypeError("attempted to get private field on non-instance"); } return fn; }
+class RecipeView extends _View.default {
+  constructor(...args) {
+    super(...args);
 
-function _classPrivateFieldSet(receiver, privateMap, value) { var descriptor = privateMap.get(receiver); if (!descriptor) { throw new TypeError("attempted to set private field on non-instance"); } if (descriptor.set) { descriptor.set.call(receiver, value); } else { if (!descriptor.writable) { throw new TypeError("attempted to set read only private field"); } descriptor.value = value; } return value; }
+    _defineProperty(this, "_parentElement", document.querySelector('.recipe'));
 
-var _parentElement = new WeakMap();
+    _defineProperty(this, "_errorMessage", 'Recipe not found');
 
-var _data = new WeakMap();
-
-var _clear = new WeakSet();
-
-var _generateMarkup = new WeakSet();
-
-var _generateMarkupIngridient = new WeakSet();
-
-class RecipeView {
-  constructor() {
-    _generateMarkupIngridient.add(this);
-
-    _generateMarkup.add(this);
-
-    _clear.add(this);
-
-    _parentElement.set(this, {
-      writable: true,
-      value: document.querySelector('.recipe')
-    });
-
-    _data.set(this, {
-      writable: true,
-      value: void 0
-    });
+    _defineProperty(this, "_message", '');
   }
 
-  render(data) {
-    _classPrivateFieldSet(this, _data, data);
-
-    const markup = _classPrivateMethodGet(this, _generateMarkup, _generateMarkup2).call(this);
-
-    _classPrivateMethodGet(this, _clear, _clear2).call(this);
-
-    _classPrivateFieldGet(this, _parentElement).insertAdjacentHTML('afterbegin', markup);
+  addHandlerRender(handler) {
+    ['hashchange', 'load'].forEach(ev => window.addEventListener(ev, handler));
   }
 
-  renderSpinner() {
-    const markup = `<div class="spinner">
-    <svg>
-      <use href="${_icons.default}#icon-loader"></use>
-    </svg>
-  </div>`;
-    _classPrivateFieldGet(this, _parentElement).innerHTML = '';
-
-    _classPrivateFieldGet(this, _parentElement).insertAdjacentHTML('afterbegin', markup);
-  }
-
-}
-
-var _clear2 = function _clear2() {
-  _classPrivateFieldGet(this, _parentElement).innerHTML = '';
-};
-
-var _generateMarkup2 = function _generateMarkup2() {
-  return `<figure class="recipe__fig">
-    <img src="${_classPrivateFieldGet(this, _data).image}" alt="${_classPrivateFieldGet(this, _data).title}" class="recipe__img" />
+  _generateMarkup() {
+    return `<figure class="recipe__fig">
+    <img src="${this._data.image}" alt="${this._data.title}" class="recipe__img" />
     <h1 class="recipe__title">
-      <span>${_classPrivateFieldGet(this, _data).title}</span>
+      <span>${this._data.title}</span>
     </h1>
   </figure>
 
@@ -5204,14 +5218,14 @@ var _generateMarkup2 = function _generateMarkup2() {
       <svg class="recipe__info-icon">
         <use href="src/img/icons.svg#icon-clock"></use>
       </svg>
-      <span class="recipe__info-data recipe__info-data--minutes">${_classPrivateFieldGet(this, _data).cookingTime}</span>
+      <span class="recipe__info-data recipe__info-data--minutes">${this._data.cookingTime}</span>
       <span class="recipe__info-text">minutes</span>
     </div>
     <div class="recipe__info">
       <svg class="recipe__info-icon">
         <use href="${_icons.default}#icon-users"></use>
       </svg>
-      <span class="recipe__info-data recipe__info-data--people">${_classPrivateFieldGet(this, _data).servings}</span>
+      <span class="recipe__info-data recipe__info-data--people">${this._data.servings}</span>
       <span class="recipe__info-text">servings</span>
 
       <div class="recipe__info-buttons">
@@ -5229,9 +5243,7 @@ var _generateMarkup2 = function _generateMarkup2() {
     </div>
 
     <div class="recipe__user-generated">
-      <svg>
-        <use href="${_icons.default}#icon-user"></use>
-      </svg>
+      
     </div>
     <button class="btn--round">
       <svg class="">
@@ -5243,7 +5255,7 @@ var _generateMarkup2 = function _generateMarkup2() {
   <div class="recipe__ingredients">
     <h2 class="heading--2">Recipe ingredients</h2>
     <ul class="recipe__ingredient-list">
-      ${_classPrivateFieldGet(this, _data).ingredients.map(_classPrivateMethodGet(this, _generateMarkupIngridient, _generateMarkupIngridient2)).join('')}
+      ${this._data.ingredients.map(this._generateMarkupIngridient).join('')}
       
     </ul>
   </div>
@@ -5252,12 +5264,12 @@ var _generateMarkup2 = function _generateMarkup2() {
     <h2 class="heading--2">How to cook it</h2>
     <p class="recipe__directions-text">
       This recipe was carefully designed and tested by
-      <span class="recipe__publisher">${_classPrivateFieldGet(this, _data).title}</span>. Please check out
+      <span class="recipe__publisher">${this._data.title}</span>. Please check out
       directions at their website.
     </p>
     <a
       class="btn--small recipe__btn"
-      href="${_classPrivateFieldGet(this, _data).sourceUrl}"
+      href="${this._data.sourceUrl}"
       target="_blank"
     >
       <span>Directions</span>
@@ -5266,10 +5278,10 @@ var _generateMarkup2 = function _generateMarkup2() {
       </svg>
     </a>
   </div>`;
-};
+  }
 
-var _generateMarkupIngridient2 = function _generateMarkupIngridient2(el) {
-  return `<li class="recipe__ingredient">
+  _generateMarkupIngridient(el) {
+    return `<li class="recipe__ingredient">
 <svg class="recipe__icon">
 <use href="${_icons.default}#icon-check"></use>
 </svg>
@@ -5279,12 +5291,14 @@ var _generateMarkupIngridient2 = function _generateMarkupIngridient2(el) {
 ${el.description}
 </div>
 </li>`;
-};
+  }
+
+}
 
 var _default = new RecipeView();
 
 exports.default = _default;
-},{"url:../../img/icons.svg":"0aa928e06a1fb169891c77f83e35c0e7","fractional":"ddbc156a7c16e105c8df04e9fdec967d"}],"0aa928e06a1fb169891c77f83e35c0e7":[function(require,module,exports) {
+},{"url:../../img/icons.svg":"0aa928e06a1fb169891c77f83e35c0e7","fractional":"ddbc156a7c16e105c8df04e9fdec967d","./View":"61b7a1b097e16436be3d54c2f1828c73"}],"0aa928e06a1fb169891c77f83e35c0e7":[function(require,module,exports) {
 module.exports = require('./bundle-url').getBundleURL() + require('./relative-path')("2162dda8f9ed9548", "9c8e6e48ed5c862e");
 },{"./bundle-url":"2146da1905b95151ed14d455c784e7b7","./relative-path":"1b9943ef25c7bbdf0dd1b9fa91880a6c"}],"2146da1905b95151ed14d455c784e7b7":[function(require,module,exports) {
 "use strict";
@@ -5766,6 +5780,188 @@ Fraction.primeFactors = function(n)
 
 module.exports.Fraction = Fraction
 
-},{}]},{},["888fb251dabf81f35eedf9010e3334c3","a33f6202155777c4ebe560a0813ecce3","175e469a7ea7db1c8c0744d04372621f"], null)
+},{}],"61b7a1b097e16436be3d54c2f1828c73":[function(require,module,exports) {
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.default = void 0;
+
+var _icons = _interopRequireDefault(require("url:../../img/icons.svg"));
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
+
+class View {
+  constructor() {
+    _defineProperty(this, "_data", void 0);
+  }
+
+  render(data) {
+    if (!data || Array.isArray(data) && data.length === 0) return this.renderError();
+    this._data = data;
+
+    const markup = this._generateMarkup();
+
+    this._clear();
+
+    this._parentElement.insertAdjacentHTML('afterbegin', markup);
+  }
+
+  renderSpinner() {
+    const markup = `<div class="spinner">
+    <svg>
+      <use href="${_icons.default}#icon-loader"></use>
+    </svg>
+  </div>`;
+    this._parentElement.innerHTML = '';
+
+    this._parentElement.insertAdjacentHTML('afterbegin', markup);
+  }
+
+  renderError(message = this._errorMessage) {
+    const markup = `<div class="error">
+      <div>
+        <svg>
+          <use href="${_icons.default}#icon-alert-triangle"></use>
+        </svg>
+      </div>
+      <p>${message}</p>
+    </div>`;
+
+    this._clear();
+
+    this._parentElement.insertAdjacentHTML('afterbegin', markup);
+  }
+
+  renderMessage(message = this._message) {
+    const markup = `<div class="message">
+      <div>
+        <svg>
+          <use href="${_icons.default}#icon-smile"></use>
+        </svg>
+      </div>
+      <p>${message}</p>
+    </div>`;
+
+    this._clear();
+
+    this._parentElement.insertAdjacentHTML('afterbegin', markup);
+  }
+
+  _clear() {
+    this._parentElement.innerHTML = '';
+  }
+
+}
+
+exports.default = View;
+},{"url:../../img/icons.svg":"0aa928e06a1fb169891c77f83e35c0e7"}],"c5d792f7cac03ef65de30cc0fbb2cae7":[function(require,module,exports) {
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.default = void 0;
+
+var _View = _interopRequireDefault(require("./View"));
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
+
+class SearchView extends _View.default {
+  constructor(...args) {
+    super(...args);
+
+    _defineProperty(this, "_parentElement", document.querySelector('.search'));
+
+    _defineProperty(this, "_errorMessage", 'No recipe find for your entry');
+
+    _defineProperty(this, "_message", '');
+  }
+
+  getQuery() {
+    const query = this._parentElement.querySelector('.search__field').value;
+
+    this.clearInput();
+    return query;
+  }
+
+  clearInput() {
+    this._parentElement.querySelector('.search__field').value = '';
+  }
+
+  addHandlerSearch(handler) {
+    this._parentElement.addEventListener('submit', function (e) {
+      e.preventDefault();
+      handler();
+    });
+  }
+
+}
+
+var _default = new SearchView();
+
+exports.default = _default;
+},{"./View":"61b7a1b097e16436be3d54c2f1828c73"}],"1b9321e9d451d613e1ac88fb405e4534":[function(require,module,exports) {
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.default = void 0;
+
+var _icons = _interopRequireDefault(require("url:../../img/icons.svg"));
+
+var _View = _interopRequireDefault(require("./View"));
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
+
+class resultView extends _View.default {
+  constructor(...args) {
+    super(...args);
+
+    _defineProperty(this, "_parentElement", document.querySelector('.results'));
+
+    _defineProperty(this, "_errorMessage", 'No recipe found please try another one');
+
+    _defineProperty(this, "_message", '');
+  }
+
+  _generateMarkup() {
+    return this._data.map(this._generateMarkupPreview).join('');
+  }
+
+  _generateMarkupPreview(result) {
+    return `
+    <li class="preview">
+          <a class="preview__link preview__link--active" href="#${result.id}">
+            <figure class="preview__fig">
+              <img src="${result.image}" alt="Test" />
+            </figure>
+            <div class="preview__data">
+              <h4 class="preview__title">${result.title}</h4>
+              <p class="preview__publisher">${result.publisher}</p>
+              <div class="preview__user-generated">
+                <svg>
+                  <use href="${_icons.default}#icon-user"></use>
+                </svg>
+              </div>
+            </div>
+          </a>
+        </li>`;
+  }
+
+}
+
+var _default = new resultView();
+
+exports.default = _default;
+},{"url:../../img/icons.svg":"0aa928e06a1fb169891c77f83e35c0e7","./View":"61b7a1b097e16436be3d54c2f1828c73"}]},{},["888fb251dabf81f35eedf9010e3334c3","a33f6202155777c4ebe560a0813ecce3","175e469a7ea7db1c8c0744d04372621f"], null)
 
 //# sourceMappingURL=controller.6fcc4d65.js.map

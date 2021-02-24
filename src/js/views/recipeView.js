@@ -8,6 +8,21 @@ class RecipeView extends View {
   addHandlerRender(handler) {
     ['hashchange', 'load'].forEach(ev => window.addEventListener(ev, handler));
   }
+  addHandlerRenderQtyPlus(handler) {
+    this._parentElement.addEventListener('click', function (e) {
+      const btn = e.target.closest('.btn--increase-servings');
+      if (!btn) return;
+      handler();
+    });
+  }
+
+  addHandlerRenderQtyMinus(handler) {
+    this._parentElement.addEventListener('click', function (e) {
+      const btn = e.target.closest('.btn--decrease-servings');
+      if (!btn) return;
+      handler();
+    });
+  }
 
   _generateMarkup() {
     return `<figure class="recipe__fig">
@@ -39,7 +54,7 @@ class RecipeView extends View {
       <span class="recipe__info-text">servings</span>
 
       <div class="recipe__info-buttons">
-        <button class="btn--tiny btn--increase-servings">
+        <button class="btn--tiny btn--decrease-servings">
           <svg>
             <use href="${icons}#icon-minus-circle"></use>
           </svg>
@@ -57,7 +72,7 @@ class RecipeView extends View {
     </div>
     <button class="btn--round">
       <svg class="">
-        <use href="${icons}#icon-bookmark-fill"></use>
+        <use href="${icons}#icon-bookmark"></use>
       </svg>
     </button>
   </div>

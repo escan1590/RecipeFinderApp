@@ -9,6 +9,11 @@ export const state = {
     resultsPerpage: RESULT_PER_PAGE,
     //maxPage: 1,
   },
+
+  servings: {
+    ingredientsQty: [],
+    NumberServings: 0,
+  },
 };
 
 export const loadRecipe = async function (id) {
@@ -26,6 +31,18 @@ export const loadRecipe = async function (id) {
       cookingTime: recipe.cooking_time,
       ingredients: recipe.ingredients,
     };
+    state.servings = {
+      ingredientsQty: recipe.ingredients.map(
+        ingredients => ingredients.quantity / recipe.servings
+      ),
+      NumberServings: recipe.servings / recipe.servings,
+    };
+
+    decreaseServings();
+    decreaseServings();
+    decreaseServings();
+    decreaseServings();
+    console.log(state.recipe);
   } catch (err) {
     throw err;
   }
@@ -53,6 +70,35 @@ export const loadSearchResults = async function (query) {
     throw error;
   }
 };
+
+export const increaseServings = function () {
+  state.recipe.servings++;
+  state.recipe.ingredients = state.recipe.ingredients.map(
+    (ingredients, index) => {
+      return {
+        quantity: ingredients.quantity + state.servings.ingredientsQty[index],
+        unit: ingredients.unit,
+        description: ingredients.description,
+      };
+    }
+  );
+};
+
+export const decreaseServings = function () {
+  if (state.recipe.servings > 1) {
+    state.recipe.servings--;
+    state.recipe.ingredients = state.recipe.ingredients.map(
+      (ingredients, index) => {
+        return {
+          quantity: ingredients.quantity - state.servings.ingredientsQty[index],
+          unit: ingredients.unit,
+          description: ingredients.description,
+        };
+      }
+    );
+  }
+};
+
 export const getSearchResultPage = function (page = state.search.page) {
   state.search.page = page;
   const start = (page - 1) * state.search.resultsPerpage;

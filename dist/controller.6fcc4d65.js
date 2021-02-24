@@ -532,8 +532,24 @@ const controlPagination = function (page) {
   _paginationView.default.render(model.state.search);
 };
 
+const ingredientPlus = function () {
+  model.increaseServings();
+
+  _recipeView.default.render(model.state.recipe);
+};
+
+const ingredientMinus = function () {
+  model.decreaseServings();
+
+  _recipeView.default.render(model.state.recipe);
+};
+
 const init = function () {
   _recipeView.default.addHandlerRender(controlRecipe);
+
+  _recipeView.default.addHandlerRenderQtyMinus(ingredientMinus);
+
+  _recipeView.default.addHandlerRenderQtyPlus(ingredientPlus);
 
   _searchView.default.addHandlerSearch(controlSearchResults);
 
@@ -5080,7 +5096,7 @@ $({ target: 'URL', proto: true, enumerable: true }, {
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports.resetPage = exports.getSearchResultPage = exports.loadSearchResults = exports.loadRecipe = exports.state = void 0;
+exports.resetPage = exports.getSearchResultPage = exports.decreaseServings = exports.increaseServings = exports.loadSearchResults = exports.loadRecipe = exports.state = void 0;
 
 var _config = require("./config");
 
@@ -5094,6 +5110,10 @@ const state = {
     page: 1,
     resultsPerpage: _config.RESULT_PER_PAGE //maxPage: 1,
 
+  },
+  servings: {
+    ingredientsQty: [],
+    NumberServings: 0
   }
 };
 exports.state = state;
@@ -5114,6 +5134,15 @@ const loadRecipe = async function (id) {
       cookingTime: recipe.cooking_time,
       ingredients: recipe.ingredients
     };
+    state.servings = {
+      ingredientsQty: recipe.ingredients.map(ingredients => ingredients.quantity / recipe.servings),
+      NumberServings: recipe.servings / recipe.servings
+    };
+    decreaseServings();
+    decreaseServings();
+    decreaseServings();
+    decreaseServings();
+    console.log(state.recipe);
   } catch (err) {
     throw err;
   }
@@ -5145,6 +5174,34 @@ const loadSearchResults = async function (query) {
 
 exports.loadSearchResults = loadSearchResults;
 
+const increaseServings = function () {
+  state.recipe.servings++;
+  state.recipe.ingredients = state.recipe.ingredients.map((ingredients, index) => {
+    return {
+      quantity: ingredients.quantity + state.servings.ingredientsQty[index],
+      unit: ingredients.unit,
+      description: ingredients.description
+    };
+  });
+};
+
+exports.increaseServings = increaseServings;
+
+const decreaseServings = function () {
+  if (state.recipe.servings > 1) {
+    state.recipe.servings--;
+    state.recipe.ingredients = state.recipe.ingredients.map((ingredients, index) => {
+      return {
+        quantity: ingredients.quantity - state.servings.ingredientsQty[index],
+        unit: ingredients.unit,
+        description: ingredients.description
+      };
+    });
+  }
+};
+
+exports.decreaseServings = decreaseServings;
+
 const getSearchResultPage = function (page = state.search.page) {
   state.search.page = page;
   const start = (page - 1) * state.search.resultsPerpage;
@@ -5171,7 +5228,7 @@ const API_URL = `https://forkify-api.herokuapp.com/api/v2/recipes`;
 exports.API_URL = API_URL;
 const TIMEOUT_SEC = 10;
 exports.TIMEOUT_SEC = TIMEOUT_SEC;
-const RESULT_PER_PAGE = 5;
+const RESULT_PER_PAGE = 10;
 exports.RESULT_PER_PAGE = RESULT_PER_PAGE;
 },{}],"0e8dcd8a4e1c61cf18f78e1c2563655d":[function(require,module,exports) {
 "use strict";
@@ -5238,6 +5295,22 @@ class RecipeView extends _View.default {
     ['hashchange', 'load'].forEach(ev => window.addEventListener(ev, handler));
   }
 
+  addHandlerRenderQtyPlus(handler) {
+    this._parentElement.addEventListener('click', function (e) {
+      const btn = e.target.closest('.btn--increase-servings');
+      if (!btn) return;
+      handler();
+    });
+  }
+
+  addHandlerRenderQtyMinus(handler) {
+    this._parentElement.addEventListener('click', function (e) {
+      const btn = e.target.closest('.btn--decrease-servings');
+      if (!btn) return;
+      handler();
+    });
+  }
+
   _generateMarkup() {
     return `<figure class="recipe__fig">
     <img src="${this._data.image}" alt="${this._data.title}" class="recipe__img" />
@@ -5262,7 +5335,7 @@ class RecipeView extends _View.default {
       <span class="recipe__info-text">servings</span>
 
       <div class="recipe__info-buttons">
-        <button class="btn--tiny btn--increase-servings">
+        <button class="btn--tiny btn--decrease-servings">
           <svg>
             <use href="${_icons.default}#icon-minus-circle"></use>
           </svg>
@@ -5280,7 +5353,7 @@ class RecipeView extends _View.default {
     </div>
     <button class="btn--round">
       <svg class="">
-        <use href="${_icons.default}#icon-bookmark-fill"></use>
+        <use href="${_icons.default}#icon-bookmark"></use>
       </svg>
     </button>
   </div>
@@ -5963,7 +6036,13 @@ class resultView extends _View.default {
 
     _defineProperty(this, "_errorMessage", 'No recipe found please try another one');
 
+    _defineProperty(this, "_searchFieldValue", document.querySelector('.search__field').value);
+
     _defineProperty(this, "_message", '');
+  }
+
+  isSearchFieldNotEmpty() {
+    return this._searchFieldValue !== '';
   }
 
   _generateMarkup() {

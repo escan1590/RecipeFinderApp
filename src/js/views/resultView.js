@@ -4,8 +4,12 @@ import View from './View';
 class resultView extends View {
   _parentElement = document.querySelector('.results');
   _errorMessage = 'No recipe found please try another one';
+  _searchFieldValue = document.querySelector('.search__field').value;
   _message = '';
 
+  isSearchFieldNotEmpty() {
+    return this._searchFieldValue !== '';
+  }
   _generateMarkup() {
     return this._data.map(this._generateMarkupPreview).join('');
   }

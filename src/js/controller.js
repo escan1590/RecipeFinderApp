@@ -2,6 +2,7 @@ import * as model from './model';
 import recipeView from './views/recipeView';
 import searchView from './views/searchView';
 import resultView from './views/resultView';
+import bookmarksView from './views/bookmarksView';
 import paginationView from './views/paginationView';
 import 'core-js/stable';
 import 'regenerator-runtime/runtime';
@@ -22,7 +23,8 @@ const controlRecipe = async function () {
     //Loading recipe
 
     await model.loadRecipe(id);
-
+    resultView.render(model.getSearchResultPage());
+    bookmarksView.render(model.state.bookmarks);
     //2)rendering recipe
     recipeView.render(model.state.recipe);
   } catch (err) {
@@ -42,7 +44,7 @@ const controlSearchResults = async function () {
     await model.loadSearchResults(query);
 
     //3) renderResults
-    model.resetPage();
+
     resultView.render(model.getSearchResultPage());
 
     //4) render pagination
@@ -51,26 +53,34 @@ const controlSearchResults = async function () {
     console.error(err);
   }
 };
+const controlAddBookMark = function () {
+  if (!model.state.recipe.bookmarked) model.addBookMark(model.state.recipe);
+  else model.deleteBookmark(model.state.recipe.id);
+  recipeView.update(model.state.recipe);
+  bookmarksView.render(model.state.bookmarks);
+};
 
 const controlPagination = function (page) {
   resultView.render(model.getSearchResultPage(page));
   paginationView.render(model.state.search);
 };
+0;
 
 const ingredientPlus = function () {
   model.increaseServings();
-  recipeView.render(model.state.recipe);
+  recipeView.update(model.state.recipe);
 };
 
 const ingredientMinus = function () {
   model.decreaseServings();
-  recipeView.render(model.state.recipe);
+  recipeView.update(model.state.recipe);
 };
 
 const init = function () {
   recipeView.addHandlerRender(controlRecipe);
   recipeView.addHandlerRenderQtyMinus(ingredientMinus);
   recipeView.addHandlerRenderQtyPlus(ingredientPlus);
+  recipeView.addHandlerAddBookmark(controlAddBookMark);
   searchView.addHandlerSearch(controlSearchResults);
   paginationView.addHandlerPagination(controlPagination);
 };

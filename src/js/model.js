@@ -14,6 +14,8 @@ export const state = {
     ingredientsQty: [],
     NumberServings: 0,
   },
+
+  bookmarks: [],
 };
 
 export const loadRecipe = async function (id) {
@@ -31,6 +33,9 @@ export const loadRecipe = async function (id) {
       cookingTime: recipe.cooking_time,
       ingredients: recipe.ingredients,
     };
+
+    if (state.bookmarks.some(b => b.id === id)) state.recipe.bookmarked = true;
+    else state.recipe.bookmarked = false;
     state.servings = {
       ingredientsQty: recipe.ingredients.map(
         ingredients => ingredients.quantity / recipe.servings
@@ -99,6 +104,14 @@ export const decreaseServings = function () {
   }
 };
 
+export const addBookMark = function (recipe) {
+  //Add bookMarkk
+  state.bookmarks.push(recipe);
+
+  //Mark current recipe as bookmark
+  if (recipe.id === state.recipe.id) state.recipe.bookmarked = true;
+};
+
 export const getSearchResultPage = function (page = state.search.page) {
   state.search.page = page;
   const start = (page - 1) * state.search.resultsPerpage;
@@ -108,4 +121,10 @@ export const getSearchResultPage = function (page = state.search.page) {
 
 export const resetPage = function () {
   state.search.page = 1;
+};
+//Delete bookmark
+export const deleteBookmark = function (id) {
+  const index = state.bookmarks.findIndex(el => el.id === id);
+  state.bookmarks.splice(index, 1);
+  if (id === state.recipe.id) state.recipe.bookmarked = false;
 };

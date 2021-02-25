@@ -559,7 +559,13 @@ const ingredientMinus = function () {
   _recipeView.default.update(model.state.recipe);
 };
 
+const controlBookmarks = function () {
+  _bookmarksView.default.render(model.state.bookmarks);
+};
+
 const init = function () {
+  _bookmarksView.default.addHandlerRender(controlBookmarks);
+
   _recipeView.default.addHandlerRender(controlRecipe);
 
   _recipeView.default.addHandlerRenderQtyMinus(ingredientMinus);
@@ -5113,7 +5119,7 @@ $({ target: 'URL', proto: true, enumerable: true }, {
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports.deleteBookmark = exports.resetPage = exports.getSearchResultPage = exports.addBookMark = exports.decreaseServings = exports.increaseServings = exports.loadSearchResults = exports.loadRecipe = exports.state = void 0;
+exports.resetPage = exports.getSearchResultPage = exports.deleteBookmark = exports.addBookMark = exports.decreaseServings = exports.increaseServings = exports.loadSearchResults = exports.loadRecipe = exports.state = void 0;
 
 var _config = require("./config");
 
@@ -5135,6 +5141,10 @@ const state = {
   bookmarks: []
 };
 exports.state = state;
+
+const persistBookmarks = function () {
+  localStorage.setItem('bookmarks', JSON.stringify(state.bookmarks));
+};
 
 const loadRecipe = async function (id) {
   try {
@@ -5161,7 +5171,6 @@ const loadRecipe = async function (id) {
     decreaseServings();
     decreaseServings();
     decreaseServings();
-    console.log(state.recipe);
   } catch (err) {
     throw err;
   }
@@ -5226,9 +5235,19 @@ const addBookMark = function (recipe) {
   state.bookmarks.push(recipe); //Mark current recipe as bookmark
 
   if (recipe.id === state.recipe.id) state.recipe.bookmarked = true;
+  persistBookmarks();
 };
 
 exports.addBookMark = addBookMark;
+
+const deleteBookmark = function (id) {
+  const index = state.bookmarks.findIndex(el => el.id === id);
+  state.bookmarks.splice(index, 1);
+  if (id === state.recipe.id) state.recipe.bookmarked = false;
+  persistBookmarks();
+};
+
+exports.deleteBookmark = deleteBookmark;
 
 const getSearchResultPage = function (page = state.search.page) {
   state.search.page = page;
@@ -5241,18 +5260,16 @@ exports.getSearchResultPage = getSearchResultPage;
 
 const resetPage = function () {
   state.search.page = 1;
-}; //Delete bookmark
-
+};
 
 exports.resetPage = resetPage;
 
-const deleteBookmark = function (id) {
-  const index = state.bookmarks.findIndex(el => el.id === id);
-  state.bookmarks.splice(index, 1);
-  if (id === state.recipe.id) state.recipe.bookmarked = false;
+const init = function () {
+  const storage = localStorage.getItem('bookmarks');
+  if (storage) state.bookmarks = JSON.parse(storage);
 };
 
-exports.deleteBookmark = deleteBookmark;
+init(); //Delete bookmark
 },{"./config":"09212d541c5c40ff2bd93475a904f8de","./helpers":"0e8dcd8a4e1c61cf18f78e1c2563655d"}],"09212d541c5c40ff2bd93475a904f8de":[function(require,module,exports) {
 "use strict";
 
@@ -6256,6 +6273,10 @@ class bookmarkView extends _View.default {
 
   _generateMarkup() {
     return this._data.map(this._generateMarkupPreview).join('');
+  }
+
+  addHandlerRender(handler) {
+    window.addEventListener('load', handler);
   }
 
   _generateMarkupPreview(result, idx, array) {
